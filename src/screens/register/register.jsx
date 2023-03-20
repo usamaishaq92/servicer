@@ -2,12 +2,14 @@ import { useState } from "react";
 import { TextInput, View, TouchableOpacity, Image } from "react-native";
 import Spinner from "react-native-loading-spinner-overlay";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "../../services/firebaseConfig";
+import { auth, db, storage } from "../../services/firebaseConfig";
 import { setDoc, doc, collection } from "firebase/firestore";
+import { ref, uploadBytes } from "firebase/storage";
 
 import { Styles } from "./register_styles";
 import { Button } from "../../components/button";
 import { CustomCamera } from "../../components/CustomCamera";
+import { uriToBlob } from "../../utils/help";
 
 function Register() {
   const [firstName, setFirstName] = useState("");
@@ -88,6 +90,29 @@ function Register() {
     setProfilePic(picturePath);
   };
 
+  const onUploadPress = () => {
+    setLoading(true);
+    // make the blob of the image
+    uriToBlob(profilePic)
+      .then((blobReponse) => {
+        const filename = `profilePic.jpg`;
+        const fileRef = ref(storage, filename);
+        uploadBytes(fileRef, blobReponse)
+          .then((uploadResponse) => {
+            alert("uploaded");
+            setLoading(false);
+          })
+          .catch((uploadError) => {
+            alert(uploadError.message);
+            setLoading(false);
+          });
+      })
+      .catch((blobError) => {
+        alert(blobError.message);
+        setLoading(false);
+      });
+  };
+
   return (
     <View style={Styles.container}>
       <View style={Styles.formCon}>
@@ -136,7 +161,11 @@ function Register() {
           </View>
         </View>
       </View>
-      <View style={Styles.bottomCon}></View>
+      <View style={Styles.bottomCon}>
+        <View style={{ flexDirection: "row" }}>
+          <Button primary title={"upload image"} onPress={onUploadPress} />
+        </View>
+      </View>
 
       <Spinner visible={loading} textContent={"Loading..."} />
 
