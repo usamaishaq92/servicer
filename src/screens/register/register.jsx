@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TextInput, View } from "react-native";
+import { TextInput, View, TouchableOpacity, Image } from "react-native";
 import Spinner from "react-native-loading-spinner-overlay";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../../services/firebaseConfig";
@@ -7,6 +7,7 @@ import { setDoc, doc, collection } from "firebase/firestore";
 
 import { Styles } from "./register_styles";
 import { Button } from "../../components/button";
+import { CustomCamera } from "../../components/CustomCamera";
 
 function Register() {
   const [firstName, setFirstName] = useState("");
@@ -15,6 +16,7 @@ function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
 
   const onSubmit = () => {
     if (firstName === "") {
@@ -76,9 +78,24 @@ function Register() {
       });
   };
 
+  const onPickImagePress = () => {
+    // invert the state of camera opernet
+    setIsCameraOpen(true);
+  };
+
   return (
     <View style={Styles.container}>
       <View style={Styles.formCon}>
+        <TouchableOpacity
+          style={Styles.pickImageCon}
+          onPress={onPickImagePress}
+        >
+          <Image
+            style={Styles.profieImage}
+            source={require("../../../assets/icon.png")}
+          />
+        </TouchableOpacity>
+
         <View style={Styles.form}>
           <TextInput
             onChangeText={setFirstName}
@@ -113,6 +130,8 @@ function Register() {
       <View style={Styles.bottomCon}></View>
 
       <Spinner visible={loading} textContent={"Loading..."} />
+
+      {isCameraOpen === true && <CustomCamera />}
     </View>
   );
 }
