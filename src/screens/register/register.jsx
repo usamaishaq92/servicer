@@ -17,6 +17,7 @@ function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [profilePic, setProfilePic] = useState("");
 
   const onSubmit = () => {
     if (firstName === "") {
@@ -82,6 +83,10 @@ function Register() {
     // invert the state of camera opernet
     setIsCameraOpen(true);
   };
+  const onPicTaken = (picturePath) => {
+    setIsCameraOpen(false);
+    setProfilePic(picturePath);
+  };
 
   return (
     <View style={Styles.container}>
@@ -92,7 +97,11 @@ function Register() {
         >
           <Image
             style={Styles.profieImage}
-            source={require("../../../assets/icon.png")}
+            source={
+              profilePic === ""
+                ? require("../../../assets/icon.png")
+                : { uri: profilePic }
+            }
           />
         </TouchableOpacity>
 
@@ -131,7 +140,7 @@ function Register() {
 
       <Spinner visible={loading} textContent={"Loading..."} />
 
-      {isCameraOpen === true && <CustomCamera />}
+      {isCameraOpen === true && <CustomCamera onPictureTaken={onPicTaken} />}
     </View>
   );
 }

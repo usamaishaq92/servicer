@@ -6,9 +6,13 @@ import { Camera, CameraType } from "expo-camera";
 // takes picture and gives its parent screen the picture data
 // closes it self
 
-function CustomCamera({}) {
+// closes it self
+// onPictureTaken is a power function that return image data to its parent
+// caller components
+
+function CustomCamera({ onPictureTaken }) {
   const cameraRef = useRef();
-  const [type, setType] = useState(CameraType.back);
+  const [type, setType] = useState(CameraType.front);
   const [permission, requestPermission] = Camera.useCameraPermissions();
   requestPermission();
 
@@ -24,7 +28,7 @@ function CustomCamera({}) {
         console.log(response);
         // check if the path of picture exists then take it to the state
         if (response.uri !== undefined) {
-          // setProfilePicUri(response.uri);
+          onPictureTaken(response.uri);
         }
       })
       .catch((error) => {
@@ -47,6 +51,9 @@ function CustomCamera({}) {
 
 const styles = StyleSheet.create({
   con: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
     position: "absolute",
     width: "100%",
     height: "100%",
