@@ -3,7 +3,7 @@ import { TextInput, View } from "react-native";
 import Spinner from "react-native-loading-spinner-overlay";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../../services/firebaseConfig";
-import { addDoc, collection } from "firebase/firestore";
+import { setDoc, doc, collection } from "firebase/firestore";
 
 import { Styles } from "./register_styles";
 import { Button } from "../../components/button";
@@ -55,7 +55,12 @@ function Register() {
 
     createUserWithEmailAndPassword(auth, email, password)
       .then((authResponse) => {
-        addDoc(collection(db, "users"), { email, firstName, lastName })
+        const user = authResponse.user;
+
+        // print authResponse to study and get UID out of it
+        console.log(user.uid);
+
+        setDoc(doc(db, "users", user.uid), { email, firstName, lastName })
           .then((dbResponse) => {
             setLoading(false);
             alert("user is registerd");
