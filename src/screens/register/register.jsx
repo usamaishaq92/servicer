@@ -4,7 +4,7 @@ import Spinner from "react-native-loading-spinner-overlay";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db, storage } from "../../services/firebaseConfig";
 import { setDoc, doc, collection } from "firebase/firestore";
-import { ref, uploadBytes } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 import { Styles } from "./register_styles";
 import { Button } from "../../components/button";
@@ -52,6 +52,11 @@ function Register() {
       return;
     }
 
+    if (profilePic === "") {
+      alert("profile picture is a must");
+      return;
+    }
+
     // if the form fully filled then please go to firebase
     //  for auth and show loader to the user and hide it when auth is done
     // sending data
@@ -65,15 +70,8 @@ function Register() {
         // print authResponse to study and get UID out of it
         console.log(user.uid);
 
-        setDoc(doc(db, "users", user.uid), { email, firstName, lastName })
-          .then((dbResponse) => {
-            setLoading(false);
-            alert("user is registerd");
-          })
-          .catch((dbError) => {
-            setLoading(false);
-            alert(dbError.message);
-          });
+        // try uploading the image
+        attemptToUploadData(user.uid);
       })
       .catch((authError) => {
         setLoading(false);
@@ -90,16 +88,42 @@ function Register() {
     setProfilePic(picturePath);
   };
 
-  const onUploadPress = () => {
+  const attemptToUploadData = (uid) => {
     setLoading(true);
     // make the blob of the image
     uriToBlob(profilePic)
       .then((blobReponse) => {
-        const filename = `profilePic.jpg`;
+        const timestamp = new Date().getTime();
+        const filename = `${uid}_${timestamp}.jpg`;
         const fileRef = ref(storage, filename);
         uploadBytes(fileRef, blobReponse)
           .then((uploadResponse) => {
-            alert("uploaded");
+            getDownloadURL(fileRef)
+              .then((fileResponse) => {
+                console.log(fileResponse);
+                // upload the image info and rest of the info to firesore
+
+                const data = {
+                  firstName: firstName,
+                  lastName: lastName,
+                  email: email,
+                  profileImgUrl: fileResponse,
+                };
+
+                // setDoc ak doc bnao hmari firesotre db ma
+                // users collection k andr new UID k sath data la k
+                setDoc(doc(db, "users", uid), data)
+                  .then((lastResponse) => {
+                    alert("User successfuly Registered.");
+                  })
+                  .catch((lastError) => {
+                    alert(lastError.message);
+                  });
+              })
+              .catch((fileError) => {
+                alert(fileError.message);
+                setLoading(false);
+              });
             setLoading(false);
           })
           .catch((uploadError) => {
@@ -161,11 +185,7 @@ function Register() {
           </View>
         </View>
       </View>
-      <View style={Styles.bottomCon}>
-        <View style={{ flexDirection: "row" }}>
-          <Button primary title={"upload image"} onPress={onUploadPress} />
-        </View>
-      </View>
+      <View style={Styles.bottomCon}></View>
 
       <Spinner visible={loading} textContent={"Loading..."} />
 
