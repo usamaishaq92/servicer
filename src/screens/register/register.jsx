@@ -88,53 +88,29 @@ function Register() {
     setProfilePic(picturePath);
   };
 
-  const attemptToUploadData = (uid) => {
-    setLoading(true);
-    // make the blob of the image
-    uriToBlob(profilePic)
-      .then((blobReponse) => {
-        const timestamp = new Date().getTime();
-        const filename = `${uid}_${timestamp}.jpg`;
-        const fileRef = ref(storage, filename);
-        uploadBytes(fileRef, blobReponse)
-          .then((uploadResponse) => {
-            getDownloadURL(fileRef)
-              .then((fileResponse) => {
-                console.log(fileResponse);
-                // upload the image info and rest of the info to firesore
+  const attemptToUploadData = async (uid) => {
+    try {
+      setLoading(true);
+      //convert the image to blob
+      const blobResponse = await uriToBlob(profilePic);
+      const timestamp = new Date().getTime();
+      const filename = `${uid}_${timestamp}.jpg`;
+      const fileRef = ref(storage, filename);
+      const uploadImageResponse = await uploadBytes(fileRef, blobResponse);
+      const fileResponse = await getDownloadURL(fileRef);
+      const data = {
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        profileImgUrl: fileResponse,
+      };
 
-                const data = {
-                  firstName: firstName,
-                  lastName: lastName,
-                  email: email,
-                  profileImgUrl: fileResponse,
-                };
-
-                // setDoc ak doc bnao hmari firesotre db ma
-                // users collection k andr new UID k sath data la k
-                setDoc(doc(db, "users", uid), data)
-                  .then((lastResponse) => {
-                    alert("User successfuly Registered.");
-                  })
-                  .catch((lastError) => {
-                    alert(lastError.message);
-                  });
-              })
-              .catch((fileError) => {
-                alert(fileError.message);
-                setLoading(false);
-              });
-            setLoading(false);
-          })
-          .catch((uploadError) => {
-            alert(uploadError.message);
-            setLoading(false);
-          });
-      })
-      .catch((blobError) => {
-        alert(blobError.message);
-        setLoading(false);
-      });
+      const uploadDocument = await setDoc(doc(db, "users", uid), data);
+      setLoading(false);
+    } catch (error) {
+      alert(error.message);
+      setLoading(false);
+    }
   };
 
   return (
