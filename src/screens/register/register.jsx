@@ -93,8 +93,7 @@ function Register() {
       setLoading(true);
       //convert the image to blob
       const blobResponse = await uriToBlob(profilePic);
-      const timestamp = new Date().getTime();
-      const filename = `${uid}_${timestamp}.jpg`;
+      const filename = `pic_${Date.now()}`;
       const fileRef = ref(storage, filename);
       const uploadImageResponse = await uploadBytes(fileRef, blobResponse);
       const fileResponse = await getDownloadURL(fileRef);
