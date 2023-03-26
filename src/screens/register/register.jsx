@@ -9,9 +9,9 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Styles } from "./register_styles";
 import { Button } from "../../components/button";
 import { CustomCamera } from "../../components/CustomCamera";
-import { uriToBlob } from "../../utils/help";
+import { uriToBlob, saveIsUserLoggedIn } from "../../utils/help";
 
-function Register() {
+function Register({ navigation }) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -106,6 +106,8 @@ function Register() {
 
       const uploadDocument = await setDoc(doc(db, "users", uid), data);
       setLoading(false);
+      saveIsUserLoggedIn();
+      navigation.replace("Main");
     } catch (error) {
       alert(error.message);
       setLoading(false);

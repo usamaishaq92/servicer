@@ -1,8 +1,20 @@
+import { useEffect } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Styles } from "./login_styles";
 import { Button } from "../../components/button";
+import { getIsUserLoggedIn } from "../../utils/help";
 
 function Login({ navigation }) {
+  // on user sees this pagG
+
+  useEffect(() => {
+    getIsUserLoggedIn().then((response) => {
+      if (response === "true") {
+        navigation.replace("Main");
+      }
+    });
+  }, []);
+
   const myFunc = () => {
     alert("asfas");
   };
