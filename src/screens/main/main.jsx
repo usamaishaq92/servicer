@@ -1,9 +1,10 @@
-import { View, Text, FlatList, Image } from "react-native";
+import { View, Text, FlatList, Image, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../services/firebaseConfig";
 import { Button } from "../../components/button";
 import { removeIsUserLoggedIn } from "../../utils/help";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 function Main({ navigation }) {
   const attemptToLogout = () => {
@@ -48,9 +49,21 @@ function Main({ navigation }) {
       </View>
     </View>
   );
+  const goToSettings = () => {
+    navigation.navigate("Settings");
+  };
 
   return (
     <View style={{ justifyContent: "center", flex: 1, marginTop: 30 }}>
+      <View>
+        <TouchableOpacity
+          onPress={goToSettings}
+          style={{ alignSelf: "flex-end", marginRight: 5 }}
+        >
+          <Ionicons name={"settings"} size={30} color={"grey"} />
+        </TouchableOpacity>
+      </View>
+
       <FlatList data={users} renderItem={__renderItem} />
 
       <View style={{ flexDirection: "row" }}>
