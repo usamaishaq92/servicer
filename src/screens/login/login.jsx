@@ -4,6 +4,7 @@ import { Styles } from "./login_styles";
 import { Button } from "../../components/button";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../services/firebaseConfig";
+import Spinner from "react-native-loading-spinner-overlay";
 import {
   getIsUserLoggedIn,
   saveIsUserLoggedIn,
@@ -14,6 +15,8 @@ import {
 function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
   // on user sees this pagG
 
   useEffect(() => {
@@ -37,6 +40,7 @@ function Login({ navigation }) {
   };
 
   const attemptToLogin = () => {
+    setLoading(true);
     signInWithEmailAndPassword(auth, email, password)
       .then((response) => {
         const user = response.user;
@@ -44,10 +48,12 @@ function Login({ navigation }) {
         // save user session and user uid in local storage and move ahead
         saveIsUserLoggedIn();
         saveUserUid(uid);
+        setLoading(false);
         navigation.replace("Main");
       })
       .catch((error) => {
         alert(error.message);
+        setLoading(false);
       });
   };
 
@@ -79,6 +85,7 @@ function Login({ navigation }) {
         </View>
       </View>
       <View style={Styles.bottomCon}></View>
+      <Spinner visible={loading} textContent={"Loading..."} />
     </View>
   );
 }
