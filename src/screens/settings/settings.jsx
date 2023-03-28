@@ -13,6 +13,7 @@ import { CustomCamera } from "../../components/CustomCamera";
 import {
   removeIsUserLoggedIn,
   saveIsUserLoggedIn,
+  getUserUid,
   uriToBlob,
 } from "../../utils/help";
 
@@ -28,12 +29,33 @@ function Settings({ navigation }) {
 
   useEffect(() => {
     // check if the user session is running
-    if (auth.currentUser !== null) {
-      const user = auth.currentUser;
-      alert(user.uid);
-    }
+
+    getUserUid().then((response) => {
+      const uid = response;
+      const docRef = doc(db, "users", uid);
+      getDoc(docRef)
+        .then((response) => {
+          if (response.exists()) {
+            console.log(response.data());
+            const user = response.data();
+            setUserState(user);
+          }
+        })
+        .catch((error) => {
+          alert(error.message);
+        });
+    });
+
     // doc(db, "users", "");
   }, []);
+
+  // its called when useEffect brings user details from firestore
+  const setUserState = (user) => {
+    setEmail(user.email);
+    setFirstName(user.firstName);
+    setLastName(user.lastName);
+    setProfilePic(user.profileImgUrl);
+  };
 
   const onSubmit = () => {
     if (firstName === "") {
@@ -74,23 +96,6 @@ function Settings({ navigation }) {
     // if the form fully filled then please go to firebase
     //  for auth and show loader to the user and hide it when auth is done
     // sending data
-
-    setLoading(true);
-
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((authResponse) => {
-        const user = authResponse.user;
-
-        // print authResponse to study and get UID out of it
-        console.log(user.uid);
-
-        // try uploading the image
-        attemptToUploadData(user.uid);
-      })
-      .catch((authError) => {
-        setLoading(false);
-        alert(authError.message);
-      });
   };
 
   const onPickImagePress = () => {
@@ -101,32 +106,6 @@ function Settings({ navigation }) {
   const onPicTaken = (picturePath) => {
     setIsCameraOpen(false);
     setProfilePic(picturePath);
-  };
-
-  const attemptToUploadData = async (uid) => {
-    try {
-      setLoading(true);
-      //convert the image to blob
-      const blobResponse = await uriToBlob(profilePic);
-      const filename = `profile_${Date.now()}`;
-      const fileRef = ref(storage, filename);
-      const uploadImageResponse = await uploadBytes(fileRef, blobResponse);
-      const fileResponse = await getDownloadURL(fileRef);
-      const data = {
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        profileImgUrl: fileResponse,
-      };
-
-      const uploadDocument = await setDoc(doc(db, "users", uid), data);
-      setLoading(false);
-      saveIsUserLoggedIn();
-      navigation.replace("Main");
-    } catch (error) {
-      alert(error.message);
-      setLoading(false);
-    }
   };
 
   const attemptToLogout = () => {
@@ -153,11 +132,13 @@ function Settings({ navigation }) {
 
         <View style={Styles.form}>
           <TextInput
+            value={firstName}
             onChangeText={setFirstName}
             placeholder="first Name"
             style={Styles.inputCon}
           />
           <TextInput
+            value={lastName}
             onChangeText={setLastName}
             placeholder="last Name"
             style={Styles.inputCon}
@@ -165,16 +146,7 @@ function Settings({ navigation }) {
           <TextInput
             onChangeText={setEmail}
             placeholder="email"
-            style={Styles.inputCon}
-          />
-          <TextInput
-            onChangeText={setPassword}
-            placeholder="password"
-            style={Styles.inputCon}
-          />
-          <TextInput
-            onChangeText={setConfirmPassword}
-            placeholder="confirm Passowrd"
+            value={email}
             style={Styles.inputCon}
           />
           <View style={{ flexDirection: "row" }}>

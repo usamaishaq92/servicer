@@ -65,7 +65,8 @@ const saveUserUid = async (uid) => {
 
 const getUserUid = async () => {
   try {
-    await AsyncStorage.getItem("user_id");
+    const response = await AsyncStorage.getItem("user_id");
+    return response;
   } catch (error) {
     alert(error.message);
   }
