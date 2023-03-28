@@ -55,9 +55,27 @@ const getIsUserLoggedIn = async () => {
   }
 };
 
+const saveUserUid = async (uid) => {
+  try {
+    await AsyncStorage.setItem("user_id", uid);
+  } catch (error) {
+    alert(error.message);
+  }
+};
+
+const getUserUid = async () => {
+  try {
+    await AsyncStorage.getItem("user_id");
+  } catch (error) {
+    alert(error.message);
+  }
+};
+
 export {
   uriToBlob,
   getIsUserLoggedIn,
   saveIsUserLoggedIn,
   removeIsUserLoggedIn,
+  getUserUid,
+  saveUserUid,
 };
