@@ -30,7 +30,7 @@ const Styles = StyleSheet.create({
   profieImage: {
     width: 200,
     height: 200,
-    borderRadius: 100,
+    borderRadius: 50,
   },
 });
 
