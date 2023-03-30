@@ -53,14 +53,25 @@ function Main({ navigation }) {
     navigation.navigate("Settings");
   };
 
+  const goToMap = () => {
+    navigation.navigate("Map");
+  };
+
   return (
     <View style={{ justifyContent: "center", flex: 1, marginTop: 30 }}>
-      <View>
+      <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
         <TouchableOpacity
           onPress={goToSettings}
           style={{ alignSelf: "flex-end", marginRight: 5 }}
         >
           <Ionicons name={"settings"} size={30} color={"grey"} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={goToMap}
+          style={{ alignSelf: "flex-end", marginRight: 5 }}
+        >
+          <Ionicons name={"location"} size={35} color={"orange"} />
         </TouchableOpacity>
       </View>
 

@@ -6,6 +6,7 @@ import { Login } from "../screens/login/login";
 import { Register } from "../screens/register/register";
 import { Main } from "../screens/main/main";
 import { Settings } from "../screens/settings/settings";
+import { Map } from "../screens/map/map";
 
 function AppNavigator() {
   const Stack = createNativeStackNavigator();
@@ -22,6 +23,7 @@ function AppNavigator() {
         <Stack.Screen name="Landing" component={Landing} />
         <Stack.Screen name="Main" component={Main} />
         <Stack.Screen name="Settings" component={Settings} />
+        <Stack.Screen name="Map" component={Map} />
       </Stack.Navigator>
     </NavigationContainer>
   );
